@@ -2,7 +2,7 @@
 using MessageBroker.ConnectionManager;
 using MessageBroker.ConnectionManager.Abstractions;
 
-namespace MessageBroker.Test {
+namespace MessageBroker.TestServer {
     class Program {
         static async Task Main() {
             IConnectionManager connectionManager = new SocketConnectionManager(9876);
