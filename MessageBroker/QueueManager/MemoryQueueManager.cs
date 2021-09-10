@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using MessageBroker.MessageShipper;
@@ -20,10 +21,12 @@ namespace MessageBroker.QueueManager {
 
         public void Publish(string topic, string message) {
             if (!_topics.TryGetValue(topic, out var clients)) {
+                Console.WriteLine($"No listeners on topic '{topic}'");
                 return;
             }
 
             Task.Run(() => TcpMessageShipper.Deliver(clients.Keys, topic, message));
+            Console.WriteLine($"Published message on topic '{topic}'");
         }
 
         public void Subscribe(string topic, TcpClient client) {
@@ -31,6 +34,7 @@ namespace MessageBroker.QueueManager {
             clients.TryAdd(client, client);
             var userTopics = _users.GetOrAdd(client, _ => new ConcurrentDictionary<string, string>());
             userTopics.TryAdd(topic, topic);
+            Console.WriteLine($"Client subscribed to topic '{topic}'");
         }
 
         public void Unsubscribe(string topic, TcpClient client) {
@@ -41,6 +45,8 @@ namespace MessageBroker.QueueManager {
             if (_users.TryGetValue(client, out var userTopics)) {
                 userTopics.TryRemove(topic, out _);
             }
+
+            Console.WriteLine($"Client unsubscribed from topic '{topic}'");
         }
 
         public void UnsubscribeFromAll(TcpClient client) {
@@ -53,6 +59,8 @@ namespace MessageBroker.QueueManager {
             }
 
             _users.TryRemove(client, out _);
+
+            Console.WriteLine("Client unsubscribed from all topics");
         }
     }
 }

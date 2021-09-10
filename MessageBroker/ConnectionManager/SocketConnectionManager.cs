@@ -25,7 +25,7 @@ namespace MessageBroker.ConnectionManager {
         }
 
         private async void HandleConnection(IAsyncResult result) {
-            Console.WriteLine("Connected");
+            Console.WriteLine("Client connected");
             _socket.BeginAcceptTcpClient(HandleConnection, _socket);
 
             using var       client = _socket.EndAcceptTcpClient(result);
@@ -43,21 +43,8 @@ namespace MessageBroker.ConnectionManager {
 
                     var command = args[0].ToUpper();
                     switch (command) {
-                        case "HELP": {
-                            await writer.WriteLineAsync("Available commands:\r\n" +
-                                                        "HELP: Prints this text\r\n" +
-                                                        "PUB <queue>\\r\\nContent-Length: <character-length>\\r\\n<message>\\r\\n: Publish <message> to <queue>\r\n" +
-                                                        "SUB <queue>: Subscribe to messages on <queue>\r\n" +
-                                                        "UNSUB <queue>: Unsubscribe to messages on <queue>\r\n" +
-                                                        "PING: PONG\r\n" +
-                                                        "DISCONNECT: Disconnect from the server\r\n");
-                            break;
-                        }
-                        case "PING": {
-                            await writer.WriteLineAsync("PONG");
-                            break;
-                        }
                         case "DISCONNECT": {
+                            await reader.ReadLineAsync();
                             throw new Exception();
                         }
                         case "PUB": {
@@ -67,11 +54,10 @@ namespace MessageBroker.ConnectionManager {
                             var length    = int.Parse(contentLengthHeader.Split("content-length: ", StringSplitOptions.RemoveEmptyEntries)[0]);
                             var charArray = new char[length];
                             await reader.ReadAsync(charArray);
+                            await reader.ReadLineAsync();
+                            await reader.ReadLineAsync();
                             var message = new string(charArray);
-                            // var obj     = JsonSerializer.Deserialize<object>(message);
-                            // Console.WriteLine(JsonSerializer.Serialize(obj));
                             _queueManager.Publish(topic, message);
-
                             break;
                         }
                         case "SUB": {
@@ -88,6 +74,7 @@ namespace MessageBroker.ConnectionManager {
                 }
             } catch (Exception) {
                 _queueManager.UnsubscribeFromAll(client);
+                Console.WriteLine("Client disconnected");
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -13,10 +14,14 @@ namespace MessageBroker.MessageShipper {
         private static async Task Deliver(TcpClient client, string topic, string message) {
             var stream = client.GetStream();
             var writer = new StreamWriter(stream);
-            await writer.WriteLineAsync(topic);
-            await writer.WriteLineAsync($"Content-Length: {message.Length}\r\n");
+            await writer.WriteLineAsync($"EVENT {topic}");
+            await writer.WriteLineAsync($"Content-Length: {message.Length}");
+            await writer.WriteLineAsync();
             await writer.WriteLineAsync(message);
+            await writer.WriteLineAsync();
             await writer.FlushAsync();
+
+            Console.WriteLine($"Message sent to topic '{topic}'");
         }
     }
 }
