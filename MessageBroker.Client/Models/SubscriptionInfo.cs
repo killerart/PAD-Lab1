@@ -2,7 +2,7 @@
 using MessageBroker.Client.Abstractions;
 
 namespace MessageBroker.Client.Models {
-    internal class SubscriptionInfo {
+    public class SubscriptionInfo {
         public SubscriptionInfo(Type messageType, IMessageHandler handler) {
             MessageType = messageType;
             Handler     = handler;
