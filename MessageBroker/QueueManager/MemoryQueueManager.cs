@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Net.Sockets;
 using System.Threading.Tasks;
-using MessageBroker.MessageShipper;
 using MessageBroker.MessageShipper.Abstractions;
 using MessageBroker.QueueManager.Abstractions;
 
