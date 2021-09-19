@@ -3,19 +3,20 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using MessageBroker.ConnectionManager.Abstractions;
+using MessageBroker.MessageShipper;
 using MessageBroker.QueueManager;
 using MessageBroker.QueueManager.Abstractions;
 
 namespace MessageBroker.ConnectionManager {
     public class SocketConnectionManager : IConnectionManager {
-        private readonly TcpListener   _socket;
-        private readonly int           _port;
-        private readonly IQueueManager _queueManager;
+        private readonly TcpListener              _socket;
+        private readonly int                      _port;
+        private readonly IQueueManager<TcpClient> _queueManager;
 
         public SocketConnectionManager(int port) {
             _port         = port;
             _socket       = new TcpListener(IPAddress.Any, port);
-            _queueManager = new MemoryQueueManager();
+            _queueManager = new MemoryQueueManager<TcpClient>(new TcpMessageShipper());
         }
 
         public void Start() {

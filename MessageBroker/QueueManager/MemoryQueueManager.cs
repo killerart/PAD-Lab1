@@ -3,19 +3,23 @@ using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using MessageBroker.MessageShipper;
+using MessageBroker.MessageShipper.Abstractions;
 using MessageBroker.QueueManager.Abstractions;
 
 namespace MessageBroker.QueueManager {
-    public class MemoryQueueManager : IQueueManager {
-        private readonly ConcurrentDictionary<string, ConcurrentDictionary<TcpClient, TcpClient>> _topics;
+    public class MemoryQueueManager<T> : IQueueManager<T> where T : class {
+        private readonly ConcurrentDictionary<string, ConcurrentDictionary<T, T>> _topics;
 
-        private readonly ConcurrentDictionary<TcpClient, ConcurrentDictionary<string, string>> _users;
+        private readonly ConcurrentDictionary<T, ConcurrentDictionary<string, string>> _users;
 
         // private readonly ConcurrentDictionary<string, ConcurrentQueue<string>>  _topics;
 
-        public MemoryQueueManager() {
-            _topics = new ConcurrentDictionary<string, ConcurrentDictionary<TcpClient, TcpClient>>();
-            _users  = new ConcurrentDictionary<TcpClient, ConcurrentDictionary<string, string>>();
+        private readonly IMessageShipper<T> _messageShipper;
+
+        public MemoryQueueManager(IMessageShipper<T> messageShipper) {
+            _messageShipper = messageShipper;
+            _topics         = new ConcurrentDictionary<string, ConcurrentDictionary<T, T>>();
+            _users          = new ConcurrentDictionary<T, ConcurrentDictionary<string, string>>();
             // _topics          = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
         }
 
@@ -25,19 +29,19 @@ namespace MessageBroker.QueueManager {
                 return;
             }
 
-            Task.Run(() => TcpMessageShipper.Deliver(clients.Keys, topic, message));
+            Task.Run(() => _messageShipper.Deliver(clients.Keys, topic, message));
             Console.WriteLine($"Published message on topic '{topic}'");
         }
 
-        public void Subscribe(string topic, TcpClient client) {
-            var clients = _topics.GetOrAdd(topic, _ => new ConcurrentDictionary<TcpClient, TcpClient>());
+        public void Subscribe(string topic, T client) {
+            var clients = _topics.GetOrAdd(topic, _ => new ConcurrentDictionary<T, T>());
             clients.TryAdd(client, client);
             var userTopics = _users.GetOrAdd(client, _ => new ConcurrentDictionary<string, string>());
             userTopics.TryAdd(topic, topic);
             Console.WriteLine($"Client subscribed to topic '{topic}'");
         }
 
-        public void Unsubscribe(string topic, TcpClient client) {
+        public void Unsubscribe(string topic, T client) {
             if (_topics.TryGetValue(topic, out var clients)) {
                 clients.TryRemove(client, out _);
             }
@@ -49,7 +53,7 @@ namespace MessageBroker.QueueManager {
             Console.WriteLine($"Client unsubscribed from topic '{topic}'");
         }
 
-        public void UnsubscribeFromAll(TcpClient client) {
+        public void UnsubscribeFromAll(T client) {
             if (!_users.TryGetValue(client, out var userTopics))
                 return;
             foreach (var userTopic in userTopics) {
