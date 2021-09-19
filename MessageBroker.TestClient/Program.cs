@@ -7,8 +7,9 @@ using MessageBroker.Client.Abstractions;
 namespace MessageBroker.TestClient {
     class Program {
         static async Task Main() {
-            using var messageBrokerClient = new SocketMessageBrokerClient("127.0.0.1", 9876);
-
+            // using var messageBrokerClient = new SocketMessageBrokerClient("127.0.0.1", 9876);
+            using var messageBrokerClient = new GrpcMessageBrokerClient("127.0.0.1", 9876);
+            
             await messageBrokerClient.Subscribe(new MessageHandler());
 
             messageBrokerClient.StartListening();
