@@ -5,4 +5,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\MessageBroker.Grpc\MessageBroker.Grpc.csproj" />
+    </ItemGroup>
+
 </Project>
