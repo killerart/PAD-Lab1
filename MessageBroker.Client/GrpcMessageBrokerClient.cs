@@ -37,7 +37,7 @@ namespace MessageBroker.Client {
             if (!Subscriptions.TryAdd(topic, sub))
                 return;
 
-            await _stream!.RequestStream.WriteAsync(new Request { Command = "SUB", Topic = topic });
+            await _stream.RequestStream.WriteAsync(new Request { Command = "SUB", Topic = topic });
         }
 
         public override async ValueTask Unsubscribe<T>() {
