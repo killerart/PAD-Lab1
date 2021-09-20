@@ -3,11 +3,11 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using MessageBroker.Server.ConnectionManager.Abstractions;
-using MessageBroker.Server.MessageShipper;
+using MessageBroker.Server.MessageShipper.Socket;
 using MessageBroker.Server.QueueManager;
 using MessageBroker.Server.QueueManager.Abstractions;
 
-namespace MessageBroker.Server.ConnectionManager {
+namespace MessageBroker.Server.ConnectionManager.Socket {
     public class SocketConnectionManager : IConnectionManager {
         private readonly TcpListener              _socket;
         private readonly int                      _port;

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-using MessageBroker.Server.ConnectionManager;
 using MessageBroker.Server.ConnectionManager.Grpc;
+using MessageBroker.Server.ConnectionManager.Socket;
 
 namespace MessageBroker.TestServer {
     class Program {

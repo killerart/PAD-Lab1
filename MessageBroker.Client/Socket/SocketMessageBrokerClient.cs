@@ -4,11 +4,10 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Threading.Tasks;
-using MessageBroker.Client.Abstractions;
-using MessageBroker.Client.Models;
+using MessageBroker.Client.Core;
 
-namespace MessageBroker.Client {
-    public class SocketMessageBrokerClient : MessageBrokerClientBase, IDisposable {
+namespace MessageBroker.Client.Socket {
+    public class SocketMessageBrokerClient : MessageBrokerClientBase {
         private readonly TcpClient _socket;
 
         public SocketMessageBrokerClient(string host, int port) {
@@ -42,32 +41,35 @@ namespace MessageBroker.Client {
                 await reader.ReadLineAsync();
                 var json = new string(charArray);
 
-                await HandleMessage(topic, json);
+                HandleMessage(topic, json);
             }
         }
 
-        public override async ValueTask Subscribe<T>(IMessageHandler<T> messageHandler) {
+        public override async ValueTask Subscribe<T>(MessageBrokerEventHandler messageHandler) {
             var type   = typeof(T);
-            var sub    = new SubscriptionInfo(type, messageHandler);
             var stream = _socket.GetStream();
             var writer = new StreamWriter(stream);
 
             var topic = type.Name;
-            if (!Subscriptions.TryAdd(topic, sub))
-                return;
 
-            await writer.WriteLineAsync($"SUB {topic}");
-            await writer.WriteLineAsync();
-            await writer.FlushAsync();
+            var createdSubInfo = false;
+            var sub = Subscriptions.GetOrAdd(topic,
+                                             _ => {
+                                                 createdSubInfo = true;
+                                                 return new SubscriptionInfo(type);
+                                             });
+            sub.AddEventHandler(messageHandler);
+
+            if (createdSubInfo) {
+                await writer.WriteLineAsync($"SUB {topic}");
+                await writer.WriteLineAsync();
+                await writer.FlushAsync();
+            }
         }
 
-        public override async ValueTask Unsubscribe<T>() {
-            var topic = typeof(T).Name;
-            await Unsubscribe(topic);
-        }
-
-        private async ValueTask Unsubscribe(string topic) {
+        protected override async ValueTask Unsubscribe(string topic) {
             var stream = _socket.GetStream();
+
             var writer = new StreamWriter(stream);
             if (!Subscriptions.Remove(topic, out _)) {
                 return;
@@ -79,10 +81,11 @@ namespace MessageBroker.Client {
         }
 
         public override async ValueTask Publish<T>(T message) {
+            var topic = typeof(T).Name;
+            var json  = JsonSerializer.Serialize(message);
+
             var stream = _socket.GetStream();
             var writer = new StreamWriter(stream);
-            var topic  = typeof(T).Name;
-            var json   = JsonSerializer.Serialize(message);
             await writer.WriteLineAsync($"PUB {topic}");
             await writer.WriteLineAsync($"Content-Length: {json.Length}");
             await writer.WriteLineAsync();
@@ -92,15 +95,20 @@ namespace MessageBroker.Client {
         }
 
         public override async ValueTask Disconnect() {
-            Subscriptions.Clear();
             var stream = _socket.GetStream();
             var writer = new StreamWriter(stream);
             await writer.WriteLineAsync("DISCONNECT");
             await writer.WriteLineAsync();
             await writer.FlushAsync();
+
+            foreach (var sub in Subscriptions.Values) {
+                sub.ClearEventHandlers();
+            }
+
+            Subscriptions.Clear();
         }
 
-        public void Dispose() {
+        protected override void Dispose(bool disposing) {
             _socket.Dispose();
         }
     }

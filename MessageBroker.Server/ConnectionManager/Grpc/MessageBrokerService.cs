@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Grpc.Core;
 using MessageBroker.Grpc;
-using MessageBroker.Server.MessageShipper;
+using MessageBroker.Server.MessageShipper.Grpc;
 using MessageBroker.Server.QueueManager;
 using MessageBroker.Server.QueueManager.Abstractions;
 

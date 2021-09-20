@@ -1,14 +1,12 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Grpc.Core;
-using MessageBroker.Client.Abstractions;
-using MessageBroker.Client.Models;
+using MessageBroker.Client.Core;
 using MessageBroker.Grpc;
 
-namespace MessageBroker.Client {
-    public class GrpcMessageBrokerClient : MessageBrokerClientBase, IDisposable {
+namespace MessageBroker.Client.Grpc {
+    public class GrpcMessageBrokerClient : MessageBrokerClientBase {
         private readonly AsyncDuplexStreamingCall<Request, Response> _stream;
         private readonly CancellationTokenSource                     _cancellationTokenSource;
 
@@ -25,27 +23,28 @@ namespace MessageBroker.Client {
         private async Task Listen() {
             while (await _stream.ResponseStream.MoveNext()) {
                 var response = _stream.ResponseStream.Current;
-                await HandleMessage(response.Topic, response.Message);
+                HandleMessage(response.Topic, response.Message);
             }
         }
 
-        public override async ValueTask Subscribe<T>(IMessageHandler<T> messageHandler) {
+        public override async ValueTask Subscribe<T>(MessageBrokerEventHandler messageHandler) {
             var type  = typeof(T);
-            var sub   = new SubscriptionInfo(type, messageHandler);
             var topic = type.Name;
 
-            if (!Subscriptions.TryAdd(topic, sub))
-                return;
+            var createdSubInfo = false;
+            var sub = Subscriptions.GetOrAdd(topic,
+                                             _ => {
+                                                 createdSubInfo = true;
+                                                 return new SubscriptionInfo(type);
+                                             });
+            sub.AddEventHandler(messageHandler);
 
-            await _stream.RequestStream.WriteAsync(new Request { Command = "SUB", Topic = topic });
+            if (createdSubInfo) {
+                await _stream.RequestStream.WriteAsync(new Request { Command = "SUB", Topic = topic });
+            }
         }
 
-        public override async ValueTask Unsubscribe<T>() {
-            var topic = typeof(T).Name;
-            await Unsubscribe(topic);
-        }
-
-        private async ValueTask Unsubscribe(string topic) {
+        protected override async ValueTask Unsubscribe(string topic) {
             if (!Subscriptions.TryRemove(topic, out _)) {
                 return;
             }
@@ -61,13 +60,13 @@ namespace MessageBroker.Client {
         }
 
         public override async ValueTask Disconnect() {
-            Subscriptions.Clear();
-
             await _stream.RequestStream.WriteAsync(new Request { Command = "DISCONNECT", Topic = "" });
             await _stream.RequestStream.CompleteAsync();
+
+            ClearSubs();
         }
 
-        public void Dispose() {
+        protected override void Dispose(bool disposing) {
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
             _stream.Dispose();

@@ -1,10 +1,11 @@
 ﻿using System.Threading.Tasks;
 
-namespace MessageBroker.Client.Abstractions {
+namespace MessageBroker.Client.Core {
     public interface IMessageBrokerClient {
         void      StartListening();
-        ValueTask Subscribe<T>(IMessageHandler<T> messageHandler);
-        ValueTask Unsubscribe<T>();
+        ValueTask Subscribe<T>(MessageBrokerEventHandler   messageHandler);
+        ValueTask Unsubscribe<T>(MessageBrokerEventHandler messageHandler);
+
         ValueTask Publish<T>(T message);
         ValueTask Disconnect();
     }
