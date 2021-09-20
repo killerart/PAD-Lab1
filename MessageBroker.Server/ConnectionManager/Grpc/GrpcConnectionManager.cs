@@ -1,9 +1,9 @@
 ﻿using System;
 using Grpc.Core;
-using MessageBroker.ConnectionManager.Abstractions;
+using MessageBroker.Server.ConnectionManager.Abstractions;
 using MessageBroker.Grpc;
 
-namespace MessageBroker.ConnectionManager.Grpc {
+namespace MessageBroker.Server.ConnectionManager.Grpc {
     public class GrpcConnectionManager : IConnectionManager {
         private readonly string _host;
         private readonly int    _port;
@@ -14,7 +14,7 @@ namespace MessageBroker.ConnectionManager.Grpc {
         }
 
         public void Start() {
-            var server = new Server {
+            var server = new global::Grpc.Core.Server {
                 Services = { MessageBrokerService.BindService(new MessageBrokerImpl()) },
                 Ports    = { new ServerPort(_host, _port, ServerCredentials.Insecure) }
             };

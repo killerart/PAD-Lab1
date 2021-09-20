@@ -1,4 +1,4 @@
-﻿namespace MessageBroker.QueueManager.Abstractions {
+﻿namespace MessageBroker.Server.QueueManager.Abstractions {
     public interface IQueueManager<in T> {
         void Publish(string       topic, string message);
         void Subscribe(string     topic, T      client);

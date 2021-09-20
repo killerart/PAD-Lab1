@@ -2,11 +2,11 @@
 using System.Threading.Tasks;
 using Grpc.Core;
 using MessageBroker.Grpc;
-using MessageBroker.MessageShipper;
-using MessageBroker.QueueManager;
-using MessageBroker.QueueManager.Abstractions;
+using MessageBroker.Server.MessageShipper;
+using MessageBroker.Server.QueueManager;
+using MessageBroker.Server.QueueManager.Abstractions;
 
-namespace MessageBroker.ConnectionManager.Grpc {
+namespace MessageBroker.Server.ConnectionManager.Grpc {
     public class MessageBrokerImpl : MessageBrokerService.MessageBrokerServiceBase {
         private readonly IQueueManager<IServerStreamWriter<Response>> _queueManager;
 

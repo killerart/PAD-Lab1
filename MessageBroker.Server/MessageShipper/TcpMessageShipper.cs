@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using MessageBroker.MessageShipper.Abstractions;
+using MessageBroker.Server.MessageShipper.Abstractions;
 
-namespace MessageBroker.MessageShipper {
+namespace MessageBroker.Server.MessageShipper {
     public class TcpMessageShipper : IMessageShipper<TcpClient> {
         public async Task Deliver(IEnumerable<TcpClient> clients, string topic, string message) {
             await Task.WhenAll(clients.Select(client => Deliver(client, topic, message)));

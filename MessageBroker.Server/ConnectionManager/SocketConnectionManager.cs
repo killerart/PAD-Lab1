@@ -2,12 +2,12 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using MessageBroker.ConnectionManager.Abstractions;
-using MessageBroker.MessageShipper;
-using MessageBroker.QueueManager;
-using MessageBroker.QueueManager.Abstractions;
+using MessageBroker.Server.ConnectionManager.Abstractions;
+using MessageBroker.Server.MessageShipper;
+using MessageBroker.Server.QueueManager;
+using MessageBroker.Server.QueueManager.Abstractions;
 
-namespace MessageBroker.ConnectionManager {
+namespace MessageBroker.Server.ConnectionManager {
     public class SocketConnectionManager : IConnectionManager {
         private readonly TcpListener              _socket;
         private readonly int                      _port;

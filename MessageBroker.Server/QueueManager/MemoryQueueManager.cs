@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using MessageBroker.MessageShipper.Abstractions;
-using MessageBroker.QueueManager.Abstractions;
+using MessageBroker.Server.MessageShipper.Abstractions;
+using MessageBroker.Server.QueueManager.Abstractions;
 
-namespace MessageBroker.QueueManager {
+namespace MessageBroker.Server.QueueManager {
     public class MemoryQueueManager<T> : IQueueManager<T> where T : class {
         private readonly ConcurrentDictionary<string, ConcurrentDictionary<T, T>> _topics;
 

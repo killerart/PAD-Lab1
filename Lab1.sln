@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker", "MessageBroker\MessageBroker.csproj", "{DDBE5DB5-7A28-4B42-85D6-851EC306DA32}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.Server", "MessageBroker.Server\MessageBroker.Server.csproj", "{DDBE5DB5-7A28-4B42-85D6-851EC306DA32}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.TestServer", "MessageBroker.TestServer\MessageBroker.TestServer.csproj", "{1C2EE4FF-BB29-4F44-9F2A-968A485D89C4}"
 EndProject
