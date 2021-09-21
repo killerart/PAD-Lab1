@@ -70,6 +70,7 @@ namespace MessageBroker.Client.Grpc {
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
             _stream.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

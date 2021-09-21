@@ -54,8 +54,8 @@ namespace MessageBroker.Client.Core {
         public abstract ValueTask Disconnect();
 
         protected void ClearSubs() {
-            foreach (var sub in Subscriptions.Values) {
-                sub.ClearEventHandlers();
+            foreach (var sub in Subscriptions) {
+                sub.Value.ClearEventHandlers();
             }
 
             Subscriptions.Clear();

@@ -110,6 +110,7 @@ namespace MessageBroker.Client.Socket {
 
         protected override void Dispose(bool disposing) {
             _socket.Dispose();
+            base.Dispose(disposing);
         }
     }
 }
