@@ -43,7 +43,7 @@ namespace MessageBroker.PerformanceTest {
 
         static void TestGrpc() {
             var factory = ClientFactory.Create(name: "grpc_factory",
-                                               clientCount: ClientCount * 100,
+                                               clientCount: ClientCount + 2,
                                                initClient: (_, _) => Task.FromResult(new GrpcMessageBrokerClient("localhost", 9876)));
 
             var step = Step.Create("step",
