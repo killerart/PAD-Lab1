@@ -13,8 +13,12 @@ namespace MessageBroker.Server.MessageShipper.Grpc {
         }
 
         public async Task Deliver(IServerStreamWriter<Response> client, string topic, string message) {
-            await client.WriteAsync(new Response { Topic = topic, Message = message });
-            // Console.WriteLine($"Message sent to topic '{topic}'");
+            try {
+                await client.WriteAsync(new Response { Topic = topic, Message = message });
+                // Console.WriteLine($"Message sent to topic '{topic}'");
+            } catch (Exception) {
+                // ignored
+            }
         }
     }
 }
