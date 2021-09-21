@@ -19,7 +19,7 @@ namespace MessageBroker.Server.ConnectionManager.Grpc {
                                            ServerCallContext             context) {
             // Console.WriteLine("Client connected");
             await HandleConnection(requestStream, responseStream);
-            
+
             _queueManager.UnsubscribeFromAll(responseStream);
             // Console.WriteLine("Client disconnected");
         }
@@ -29,7 +29,7 @@ namespace MessageBroker.Server.ConnectionManager.Grpc {
                 var request = requestStream.Current;
                 switch (request.Command.ToUpper()) {
                     case "PUB": {
-                        _queueManager.Publish(request.Topic, request.Message);
+                        Task.Run(() => _queueManager.Publish(request.Topic, request.Message));
                         break;
                     }
                     case "SUB": {
