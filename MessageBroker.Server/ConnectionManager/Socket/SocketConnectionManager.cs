@@ -27,7 +27,9 @@ namespace MessageBroker.Server.ConnectionManager.Socket {
             Task.Run(async () => {
                 while (true) {
                     var client = await _socket.AcceptTcpClientAsync();
+#pragma warning disable 4014
                     Task.Run(async () => {
+#pragma warning restore 4014
                         // Console.WriteLine("Client connected");
                         await using var stream = client.GetStream();
                         using var       reader = new StreamReader(stream);
