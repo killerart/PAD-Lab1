@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="NBomber" Version="2.1.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MessageBroker.Client\MessageBroker.Client.csproj" />
+      <ProjectReference Include="..\MessageBroker.TestClient\MessageBroker.TestClient.csproj" />
+    </ItemGroup>
+
+</Project>

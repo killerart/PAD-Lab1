@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.TestClient", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.Grpc", "MessageBroker.Grpc\MessageBroker.Grpc.csproj", "{7F66D135-47D6-445D-A529-0F66A18A5BFD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.PerformanceTest", "MessageBroker.PerformanceTest\MessageBroker.PerformanceTest.csproj", "{2C3011AE-41F0-44B0-B79D-A1EDDAD44671}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{7F66D135-47D6-445D-A529-0F66A18A5BFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F66D135-47D6-445D-A529-0F66A18A5BFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F66D135-47D6-445D-A529-0F66A18A5BFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C3011AE-41F0-44B0-B79D-A1EDDAD44671}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C3011AE-41F0-44B0-B79D-A1EDDAD44671}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C3011AE-41F0-44B0-B79D-A1EDDAD44671}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C3011AE-41F0-44B0-B79D-A1EDDAD44671}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
