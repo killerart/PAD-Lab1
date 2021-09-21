@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using MessageBroker.Server.MessageShipper.Abstractions;
 using MessageBroker.Server.QueueManager.Abstractions;
@@ -23,12 +24,14 @@ namespace MessageBroker.Server.QueueManager {
 
         public void Publish(string topic, string message) {
             if (!_topics.TryGetValue(topic, out var clients)) {
-                Console.WriteLine($"No listeners on topic '{topic}'");
+                // Console.WriteLine($"No listeners on topic '{topic}'");
                 return;
             }
 
-            Task.Run(() => _messageShipper.Deliver(clients.Keys, topic, message));
-            Console.WriteLine($"Published message on topic '{topic}'");
+            foreach (var client in clients) {
+                _messageShipper.Deliver(client.Key, topic, message);
+            }
+            // Console.WriteLine($"Published message on topic '{topic}'");
         }
 
         public void Subscribe(string topic, T client) {
@@ -36,7 +39,7 @@ namespace MessageBroker.Server.QueueManager {
             clients.TryAdd(client, client);
             var userTopics = _users.GetOrAdd(client, _ => new ConcurrentDictionary<string, string>());
             userTopics.TryAdd(topic, topic);
-            Console.WriteLine($"Client subscribed to topic '{topic}'");
+            // Console.WriteLine($"Client subscribed to topic '{topic}'");
         }
 
         public void Unsubscribe(string topic, T client) {
@@ -48,7 +51,7 @@ namespace MessageBroker.Server.QueueManager {
                 userTopics.TryRemove(topic, out _);
             }
 
-            Console.WriteLine($"Client unsubscribed from topic '{topic}'");
+            // Console.WriteLine($"Client unsubscribed from topic '{topic}'");
         }
 
         public void UnsubscribeFromAll(T client) {
@@ -62,7 +65,7 @@ namespace MessageBroker.Server.QueueManager {
 
             _users.TryRemove(client, out _);
 
-            Console.WriteLine("Client unsubscribed from all topics");
+            // Console.WriteLine("Client unsubscribed from all topics");
         }
     }
 }

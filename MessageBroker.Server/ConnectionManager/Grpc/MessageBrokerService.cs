@@ -17,11 +17,11 @@ namespace MessageBroker.Server.ConnectionManager.Grpc {
         public override async Task Connect(IAsyncStreamReader<Request>   requestStream,
                                            IServerStreamWriter<Response> responseStream,
                                            ServerCallContext             context) {
-            Console.WriteLine("Client connected");
+            // Console.WriteLine("Client connected");
             await HandleConnection(requestStream, responseStream);
             
             _queueManager.UnsubscribeFromAll(responseStream);
-            Console.WriteLine("Client disconnected");
+            // Console.WriteLine("Client disconnected");
         }
 
         private async Task HandleConnection(IAsyncStreamReader<Request> requestStream, IServerStreamWriter<Response> responseStream) {

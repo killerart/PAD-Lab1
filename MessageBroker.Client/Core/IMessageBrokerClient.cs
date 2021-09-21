@@ -1,7 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace MessageBroker.Client.Core {
-    public interface IMessageBrokerClient {
+    public interface IMessageBrokerClient : IDisposable {
         void      StartListening();
         ValueTask Subscribe<T>(MessageBrokerEventHandler   messageHandler);
         ValueTask Unsubscribe<T>(MessageBrokerEventHandler messageHandler);

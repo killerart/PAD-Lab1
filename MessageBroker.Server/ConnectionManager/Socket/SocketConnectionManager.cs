@@ -2,6 +2,8 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using MessageBroker.Server.ConnectionManager.Abstractions;
 using MessageBroker.Server.MessageShipper.Socket;
 using MessageBroker.Server.QueueManager;
@@ -25,58 +27,60 @@ namespace MessageBroker.Server.ConnectionManager.Socket {
             Console.WriteLine($"Socket listening on port {_port}");
         }
 
-        private async void HandleConnection(IAsyncResult result) {
-            Console.WriteLine("Client connected");
+        private void HandleConnection(IAsyncResult result) {
             _socket.BeginAcceptTcpClient(HandleConnection, _socket);
 
-            using var       client = _socket.EndAcceptTcpClient(result);
-            await using var stream = client.GetStream();
-            using var       reader = new StreamReader(stream);
-            await using var writer = new StreamWriter(stream) {
-                AutoFlush = true
-            };
+            Task.Run(async () => {
+                using var client = _socket.EndAcceptTcpClient(result);
+                // Console.WriteLine("Client connected");
+                await using var stream = client.GetStream();
+                using var       reader = new StreamReader(stream);
+                await using var writer = new StreamWriter(stream) {
+                    AutoFlush = true
+                };
 
-            try {
-                while (true) {
-                    var firstLine = await reader.ReadLineAsync();
+                try {
+                    while (true) {
+                        var firstLine = await reader.ReadLineAsync();
 
-                    var args = firstLine!.Split();
+                        var args = firstLine!.Split();
 
-                    var command = args[0].ToUpper();
-                    switch (command) {
-                        case "DISCONNECT": {
-                            await reader.ReadLineAsync();
-                            throw new Exception();
-                        }
-                        case "PUB": {
-                            var topic               = args[1];
-                            var contentLengthHeader = (await reader.ReadLineAsync())!.ToLower();
-                            await reader.ReadLineAsync();
-                            var length    = int.Parse(contentLengthHeader.Split("content-length: ", StringSplitOptions.RemoveEmptyEntries)[0]);
-                            var charArray = new char[length];
-                            await reader.ReadAsync(charArray);
-                            await reader.ReadLineAsync();
-                            await reader.ReadLineAsync();
-                            var message = new string(charArray);
-                            _queueManager.Publish(topic, message);
-                            break;
-                        }
-                        case "SUB": {
-                            var topic = args[1];
-                            _queueManager.Subscribe(topic, client);
-                            break;
-                        }
-                        case "UNSUB": {
-                            var topic = args[1];
-                            _queueManager.Unsubscribe(topic, client);
-                            break;
+                        var command = args[0].ToUpper();
+                        switch (command) {
+                            case "DISCONNECT": {
+                                await reader.ReadLineAsync();
+                                throw new Exception();
+                            }
+                            case "PUB": {
+                                var topic               = args[1];
+                                var contentLengthHeader = (await reader.ReadLineAsync())!.ToLower();
+                                await reader.ReadLineAsync();
+                                var length    = int.Parse(contentLengthHeader.Split("content-length: ", StringSplitOptions.RemoveEmptyEntries)[0]);
+                                var charArray = new char[length];
+                                await reader.ReadAsync(charArray);
+                                await reader.ReadLineAsync();
+                                await reader.ReadLineAsync();
+                                var message = new string(charArray);
+                                _queueManager.Publish(topic, message);
+                                break;
+                            }
+                            case "SUB": {
+                                var topic = args[1];
+                                _queueManager.Subscribe(topic, client);
+                                break;
+                            }
+                            case "UNSUB": {
+                                var topic = args[1];
+                                _queueManager.Unsubscribe(topic, client);
+                                break;
+                            }
                         }
                     }
+                } catch (Exception) {
+                    _queueManager.UnsubscribeFromAll(client);
+                    // Console.WriteLine("Client disconnected");
                 }
-            } catch (Exception) {
-                _queueManager.UnsubscribeFromAll(client);
-                Console.WriteLine("Client disconnected");
-            }
+            });
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using MessageBroker.Server.MessageShipper.Abstractions;
 
@@ -22,7 +23,7 @@ namespace MessageBroker.Server.MessageShipper.Socket {
             await writer.WriteLineAsync();
             await writer.FlushAsync();
 
-            Console.WriteLine($"Message sent to topic '{topic}'");
+            // Console.WriteLine($"Message sent to topic '{topic}'");
         }
     }
 }

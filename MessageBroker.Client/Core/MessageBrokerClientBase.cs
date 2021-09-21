@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MessageBroker.Client.Core {
-    public abstract class MessageBrokerClientBase : IMessageBrokerClient, IDisposable {
+    public abstract class MessageBrokerClientBase : IMessageBrokerClient {
         protected readonly ConcurrentDictionary<string, SubscriptionInfo> Subscriptions;
 
         protected MessageBrokerClientBase() {
