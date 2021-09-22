@@ -23,65 +23,60 @@ namespace MessageBroker.Server.ConnectionManager.Socket {
 
         public void Start() {
             _socket.Start();
+            _socket.BeginAcceptTcpClient(HandleConnection, _socket);
             Console.WriteLine($"Socket listening on port {_port}");
-            Task.Run(async () => {
+        }
+
+        private async void HandleConnection(IAsyncResult result) {
+            _socket.BeginAcceptTcpClient(HandleConnection, _socket);
+
+            using var client = _socket.EndAcceptTcpClient(result);
+            // Console.WriteLine("Client connected");
+            var stream = client.GetStream();
+            var reader = new StreamReader(stream);
+
+            try {
                 while (true) {
-                    var client = await _socket.AcceptTcpClientAsync();
-#pragma warning disable 4014
-                    Task.Run(async () => {
-#pragma warning restore 4014
-                        // Console.WriteLine("Client connected");
-                        await using var stream = client.GetStream();
-                        using var       reader = new StreamReader(stream);
-                        await using var writer = new StreamWriter(stream) {
-                            AutoFlush = true
-                        };
+                    var firstLine = await reader.ReadLineAsync();
 
-                        try {
-                            while (true) {
-                                var firstLine = await reader.ReadLineAsync();
+                    var args = firstLine!.Split();
 
-                                var args = firstLine!.Split();
-
-                                var command = args[0].ToUpper();
-                                switch (command) {
-                                    case "DISCONNECT": {
-                                        await reader.ReadLineAsync();
-                                        throw new Exception();
-                                    }
-                                    case "PUB": {
-                                        var topic               = args[1];
-                                        var contentLengthHeader = (await reader.ReadLineAsync())!.ToLower();
-                                        await reader.ReadLineAsync();
-                                        var length = int.Parse(contentLengthHeader.Split("content-length: ", StringSplitOptions.RemoveEmptyEntries)[0]);
-                                        var charArray = new char[length];
-                                        await reader.ReadAsync(charArray);
-                                        await reader.ReadLineAsync();
-                                        await reader.ReadLineAsync();
-                                        var message = new string(charArray);
-                                        _queueManager.Publish(topic, message);
-                                        break;
-                                    }
-                                    case "SUB": {
-                                        var topic = args[1];
-                                        _queueManager.Subscribe(topic, client);
-                                        break;
-                                    }
-                                    case "UNSUB": {
-                                        var topic = args[1];
-                                        _queueManager.Unsubscribe(topic, client);
-                                        break;
-                                    }
-                                }
-                            }
-                        } catch (Exception) {
-                            _queueManager.UnsubscribeFromAll(client);
-                            // Console.WriteLine("Client disconnected");
-                            client.Dispose();
+                    var command = args[0].ToUpper();
+                    switch (command) {
+                        case "DISCONNECT": {
+                            await reader.ReadLineAsync();
+                            throw new Exception();
                         }
-                    });
+                        case "PUB": {
+                            var topic               = args[1];
+                            var contentLengthHeader = (await reader.ReadLineAsync())!.ToLower();
+                            await reader.ReadLineAsync();
+                            var length    = int.Parse(contentLengthHeader.Split("content-length: ", StringSplitOptions.RemoveEmptyEntries)[0]);
+                            var charArray = new char[length];
+                            await reader.ReadAsync(charArray);
+                            await reader.ReadLineAsync();
+                            await reader.ReadLineAsync();
+                            var message = new string(charArray);
+                            _queueManager.Publish(topic, message);
+                            break;
+                        }
+                        case "SUB": {
+                            var topic = args[1];
+                            _queueManager.Subscribe(topic, client);
+                            break;
+                        }
+                        case "UNSUB": {
+                            var topic = args[1];
+                            _queueManager.Unsubscribe(topic, client);
+                            break;
+                        }
+                    }
                 }
-            });
+            } catch (Exception) {
+                _queueManager.UnsubscribeFromAll(client);
+                // Console.WriteLine("Client disconnected");
+                client.Dispose();
+            }
         }
     }
 }
