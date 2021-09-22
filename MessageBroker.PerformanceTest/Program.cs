@@ -11,8 +11,8 @@ namespace MessageBroker.PerformanceTest {
         const int ClientCount = 16;
 
         static void Main(string[] args) {
-            TestSocket();
-            // TestGrpc();
+            // TestSocket();
+            TestGrpc();
         }
 
         static void TestSocket() {
@@ -35,7 +35,7 @@ namespace MessageBroker.PerformanceTest {
                                    });
 
             var scenario = ScenarioBuilder.CreateScenario("socket_test", step)
-                                          .WithWarmUpDuration(TimeSpan.FromSeconds(20))
+                                          .WithWarmUpDuration(TimeSpan.FromSeconds(5))
                                           .WithLoadSimulations(Simulation.KeepConstant(ClientCount, TimeSpan.FromMinutes(1)));
 
             NBomberRunner.RegisterScenarios(scenario).Run();
@@ -61,7 +61,7 @@ namespace MessageBroker.PerformanceTest {
                                    });
 
             var scenario = ScenarioBuilder.CreateScenario("grpc_test", step)
-                                          .WithWarmUpDuration(TimeSpan.FromSeconds(20))
+                                          .WithWarmUpDuration(TimeSpan.FromSeconds(5))
                                           .WithLoadSimulations(Simulation.KeepConstant(ClientCount, TimeSpan.FromMinutes(1)));
 
             NBomberRunner.RegisterScenarios(scenario).Run();
