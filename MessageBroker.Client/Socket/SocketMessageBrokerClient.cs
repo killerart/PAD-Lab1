@@ -8,10 +8,16 @@ using MessageBroker.Client.Core;
 
 namespace MessageBroker.Client.Socket {
     public class SocketMessageBrokerClient : MessageBrokerClientBase {
-        private readonly TcpClient _socket;
+        private readonly TcpClient     _socket;
+        private readonly NetworkStream _stream;
+        private readonly StreamReader  _reader;
+        private readonly StreamWriter  _writer;
 
         public SocketMessageBrokerClient(string host, int port) {
             _socket = new TcpClient(host, port);
+            _stream = _socket.GetStream();
+            _reader = new StreamReader(_stream);
+            _writer = new StreamWriter(_stream);
         }
 
         public override void StartListening() {
@@ -19,10 +25,8 @@ namespace MessageBroker.Client.Socket {
         }
 
         private async Task Listen() {
-            var stream = _socket.GetStream();
-            var reader = new StreamReader(stream);
             while (true) {
-                var firstLine = (await reader.ReadLineAsync())?.Split();
+                var firstLine = (await _reader.ReadLineAsync())?.Split();
                 if (firstLine is null) {
                     break;
                 }
@@ -33,12 +37,12 @@ namespace MessageBroker.Client.Socket {
                 }
 
                 var topic               = firstLine[1];
-                var contentLengthHeader = (await reader.ReadLineAsync())!.ToLower();
-                await reader.ReadLineAsync();
+                var contentLengthHeader = (await _reader.ReadLineAsync())!.ToLower();
+                await _reader.ReadLineAsync();
                 var length    = int.Parse(contentLengthHeader.Split("content-length: ", StringSplitOptions.RemoveEmptyEntries)[0]);
                 var charArray = new char[length];
-                await reader.ReadAsync(charArray);
-                await reader.ReadLineAsync();
+                await _reader.ReadAsync(charArray);
+                await _reader.ReadLineAsync();
                 var json = new string(charArray);
 
                 HandleMessage(topic, json);
@@ -46,9 +50,7 @@ namespace MessageBroker.Client.Socket {
         }
 
         public override async ValueTask Subscribe<T>(MessageBrokerEventHandler messageHandler) {
-            var type   = typeof(T);
-            var stream = _socket.GetStream();
-            var writer = new StreamWriter(stream);
+            var type = typeof(T);
 
             var topic = type.Name;
 
@@ -61,45 +63,38 @@ namespace MessageBroker.Client.Socket {
             sub.AddEventHandler(messageHandler);
 
             if (createdSubInfo) {
-                await writer.WriteLineAsync($"SUB {topic}");
-                await writer.WriteLineAsync();
-                await writer.FlushAsync();
+                await _writer.WriteLineAsync($"SUB {topic}");
+                await _writer.WriteLineAsync();
+                await _writer.FlushAsync();
             }
         }
 
         protected override async ValueTask Unsubscribe(string topic) {
-            var stream = _socket.GetStream();
-
-            var writer = new StreamWriter(stream);
             if (!Subscriptions.Remove(topic, out _)) {
                 return;
             }
 
-            await writer.WriteLineAsync($"UNSUB {topic}");
-            await writer.WriteLineAsync();
-            await writer.FlushAsync();
+            await _writer.WriteLineAsync($"UNSUB {topic}");
+            await _writer.WriteLineAsync();
+            await _writer.FlushAsync();
         }
 
         public override async ValueTask Publish<T>(T message) {
             var topic = typeof(T).Name;
             var json  = JsonSerializer.Serialize(message);
 
-            var stream = _socket.GetStream();
-            var writer = new StreamWriter(stream);
-            await writer.WriteLineAsync($"PUB {topic}");
-            await writer.WriteLineAsync($"Content-Length: {json.Length}");
-            await writer.WriteLineAsync();
-            await writer.WriteLineAsync($"{json}");
-            await writer.WriteLineAsync();
-            await writer.FlushAsync();
+            await _writer.WriteLineAsync($"PUB {topic}");
+            await _writer.WriteLineAsync($"Content-Length: {json.Length}");
+            await _writer.WriteLineAsync();
+            await _writer.WriteLineAsync($"{json}");
+            await _writer.WriteLineAsync();
+            await _writer.FlushAsync();
         }
 
         public override async ValueTask Disconnect() {
-            var stream = _socket.GetStream();
-            var writer = new StreamWriter(stream);
-            await writer.WriteLineAsync("DISCONNECT");
-            await writer.WriteLineAsync();
-            await writer.FlushAsync();
+            await _writer.WriteLineAsync("DISCONNECT");
+            await _writer.WriteLineAsync();
+            await _writer.FlushAsync();
 
             foreach (var sub in Subscriptions.Values) {
                 sub.ClearEventHandlers();
@@ -109,6 +104,9 @@ namespace MessageBroker.Client.Socket {
         }
 
         protected override void Dispose(bool disposing) {
+            _reader.Dispose();
+            _writer.Dispose();
+            _stream.Dispose();
             _socket.Dispose();
             base.Dispose(disposing);
         }
