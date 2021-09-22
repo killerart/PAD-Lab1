@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using MessageBroker.Server.Models;
 
 namespace MessageBroker.Server.MessageShipper.Abstractions {
     public interface IMessageShipper<in T> {
-        Task Deliver(IEnumerable<T> clients, string topic, string message);
-        Task Deliver(T              client,  string topic, string message);
+        Task Deliver(T client, MessageEvent messageEvent);
     }
 }
