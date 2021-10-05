@@ -21,7 +21,7 @@ namespace MessageBroker.Server.QueueManager {
 
             topic.Messages.Enqueue(messageEvent);
 
-            foreach (var (client, _) in topic.Clients) {
+            foreach (var client in topic.Clients.Keys) {
                 client.Post(messageEvent);
             }
 
@@ -55,7 +55,7 @@ namespace MessageBroker.Server.QueueManager {
         public void UnsubscribeFromAll(Client client) {
             if (!_users.TryGetValue(client, out var userTopics))
                 return;
-            foreach (var (userTopic, _) in userTopics) {
+            foreach (var userTopic in userTopics.Keys) {
                 if (_topics.TryGetValue(userTopic, out var topic)) {
                     topic.Clients.TryRemove(client, out _);
                 }
