@@ -5,9 +5,9 @@ namespace MessageBroker.Server.QueueManager.Abstractions {
     public interface IQueueManager {
         void Publish(MessageEvent messageEvent);
 
-        void Subscribe(string topic, ActionBlock<MessageEvent> client);
+        void Subscribe(string topicName, ActionBlock<MessageEvent> client);
 
-        void Unsubscribe(string topic, ActionBlock<MessageEvent> client);
+        void Unsubscribe(string topicName, ActionBlock<MessageEvent> client);
 
         void UnsubscribeFromAll(ActionBlock<MessageEvent> client);
     }

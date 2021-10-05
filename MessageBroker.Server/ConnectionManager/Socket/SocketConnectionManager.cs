@@ -32,14 +32,14 @@ namespace MessageBroker.Server.ConnectionManager.Socket {
             Console.WriteLine($"Socket listening on port {_port}");
         }
 
-        private async void HandleConnection(IAsyncResult result) {
+        private void HandleConnection(IAsyncResult result) {
             _socket.BeginAcceptTcpClient(HandleConnection, _socket);
 
             using var client = _socket.EndAcceptTcpClient(result);
             Console.WriteLine("Client connected");
-            await using var stream = client.GetStream();
-            using var       reader = new StreamReader(stream);
-            await using var writer = new StreamWriter(stream);
+            using var stream = client.GetStream();
+            using var reader = new StreamReader(stream);
+            using var writer = new StreamWriter(stream);
 
             using var tokenSource = new CancellationTokenSource();
 
@@ -49,28 +49,33 @@ namespace MessageBroker.Server.ConnectionManager.Socket {
                                                             });
             try {
                 while (true) {
-                    var firstLine = await reader.ReadLineAsync();
+                    var firstLine = reader.ReadLine();
 
                     var args = firstLine!.Split();
 
                     var command = args[0].ToUpper();
                     switch (command) {
                         case "DISCONNECT": {
-                            await reader.ReadLineAsync();
+                            reader.ReadLine();
                             throw new Exception();
                         }
                         case "PUB": {
+                            const string contentLengthHeaderName = "content-length: ";
+
                             var topic               = args[1];
-                            var contentLengthHeader = (await reader.ReadLineAsync())!.ToLower();
-                            await reader.ReadLineAsync();
-                            var length    = int.Parse(contentLengthHeader.Split("content-length: ", StringSplitOptions.RemoveEmptyEntries)[0]);
-                            var charArray = new char[length];
-                            await reader.ReadAsync(charArray);
-                            await reader.ReadLineAsync();
-                            await reader.ReadLineAsync();
-                            var message      = new string(charArray);
+                            var contentLengthHeader = reader.ReadLine()!;
+
+                            if (!contentLengthHeader.StartsWith(contentLengthHeaderName, StringComparison.OrdinalIgnoreCase))
+                                continue;
+
+                            reader.ReadLine();
+                            var length  = int.Parse(contentLengthHeader.AsSpan()[contentLengthHeaderName.Length..]);
+                            var message = string.Create(length, reader, (span, streamReader) => streamReader.Read(span));
+                            reader.ReadLine();
+                            reader.ReadLine();
                             var messageEvent = new MessageEvent(topic, message);
                             Task.Run(() => _queueManager.Publish(messageEvent));
+
                             break;
                         }
                         case "SUB": {
@@ -92,9 +97,9 @@ namespace MessageBroker.Server.ConnectionManager.Socket {
                 tokenSource.Cancel();
                 tokenSource.Dispose();
                 actionBlock.Complete();
-                await writer.DisposeAsync();
+                writer.Dispose();
                 reader.Dispose();
-                await stream.DisposeAsync();
+                stream.Dispose();
                 client.Dispose();
             }
         }

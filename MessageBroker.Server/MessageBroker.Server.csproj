@@ -6,11 +6,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Humanizer.Core" Version="2.11.10" />
+        <PackageReference Include="Humanizer.Core" Version="2.11.10"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MessageBroker.Grpc\MessageBroker.Grpc.csproj" />
+        <ProjectReference Include="..\MessageBroker.Grpc\MessageBroker.Grpc.csproj"/>
     </ItemGroup>
 
 </Project>

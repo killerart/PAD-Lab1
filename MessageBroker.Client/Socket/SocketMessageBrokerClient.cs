@@ -24,9 +24,9 @@ namespace MessageBroker.Client.Socket {
             Task.Run(Listen);
         }
 
-        private async Task Listen() {
+        private void Listen() {
             while (true) {
-                var firstLine = (await _reader.ReadLineAsync())?.Split();
+                var firstLine = _reader.ReadLine()?.Split();
                 if (firstLine is null) {
                     break;
                 }
@@ -37,13 +37,14 @@ namespace MessageBroker.Client.Socket {
                 }
 
                 var topic               = firstLine[1];
-                var contentLengthHeader = (await _reader.ReadLineAsync())!.ToLower();
-                await _reader.ReadLineAsync();
-                var length    = int.Parse(contentLengthHeader.Split("content-length: ", StringSplitOptions.RemoveEmptyEntries)[0]);
-                var charArray = new char[length];
-                await _reader.ReadAsync(charArray);
-                await _reader.ReadLineAsync();
-                var json = new string(charArray);
+                var contentLengthHeader = _reader.ReadLine()!;
+                if (!contentLengthHeader.StartsWith("content-length: ", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                _reader.ReadLine();
+                var length = int.Parse(contentLengthHeader.AsSpan()[16..]);
+                var json   = string.Create(length, _reader, (span, reader) => reader.Read(span));
+                _reader.ReadLine();
 
                 HandleMessage(topic, json);
             }
