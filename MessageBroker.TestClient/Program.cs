@@ -14,12 +14,12 @@ namespace MessageBroker.TestClient {
                 // clients[i] = new GrpcMessageBrokerClient("127.0.0.1", 9876);
                 await clients[i].Subscribe<Message>(HandleMessageEvent);
                 clients[i].StartListening();
-                await clients[i]
-                    .Publish(new Message {
-                        Id   = 5,
-                        Text = "Hello",
-                        Time = DateTime.Now
-                    });
+                // await clients[i]
+                //     .Publish(new Message {
+                //         Id   = 5,
+                //         Text = "Hello",
+                //         Time = DateTime.Now
+                //     });
             }
 
             // using var client = new SocketMessageBrokerClient("127.0.0.1", 9876);

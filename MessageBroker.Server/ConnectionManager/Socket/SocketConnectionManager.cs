@@ -70,7 +70,7 @@ namespace MessageBroker.Server.ConnectionManager.Socket {
 
                             reader.ReadLine();
                             var length  = int.Parse(contentLengthHeader.AsSpan()[contentLengthHeaderName.Length..]);
-                            var message = string.Create(length, reader, (span, streamReader) => streamReader.Read(span));
+                            var message = string.Create(length, reader, static (span, streamReader) => streamReader.Read(span));
                             reader.ReadLine();
                             reader.ReadLine();
                             var messageEvent = new MessageEvent(topic, message);
