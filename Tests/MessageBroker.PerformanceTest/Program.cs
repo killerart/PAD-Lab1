@@ -11,8 +11,8 @@ namespace MessageBroker.PerformanceTest {
         private const int ClientCount = 16;
 
         static void Main(string[] args) {
-            TestSocket();
-            // TestGrpc();
+            // TestSocket();
+            TestGrpc();
         }
 
         private static void TestSocket() {
