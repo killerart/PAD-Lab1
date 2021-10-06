@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading.Tasks.Dataflow;
 using MessageBroker.Server.Models;
 using MessageBroker.Server.QueueManager.Abstractions;
+using Serilog;
+using Serilog.Events;
 
 namespace MessageBroker.Server.QueueManager {
     using Client = ActionBlock<MessageEvent>;
 
     public class MemoryQueueManager : IQueueManager {
+        private readonly ILogger                                             _logger;
         private readonly ConcurrentDictionary<string, Topic>                 _topics;
         private readonly ConcurrentDictionary<Client, ConcurrentSet<string>> _users;
 
-        public MemoryQueueManager() {
+        public MemoryQueueManager(LogEventLevel logEventLevel = LogEventLevel.Information) {
             _topics = new ConcurrentDictionary<string, Topic>();
             _users  = new ConcurrentDictionary<Client, ConcurrentSet<string>>();
+            _logger = new LoggerConfiguration().MinimumLevel.Is(logEventLevel).WriteTo.Console().CreateLogger();
         }
 
         public void Publish(MessageEvent messageEvent) {
@@ -25,7 +28,7 @@ namespace MessageBroker.Server.QueueManager {
                 client.Post(messageEvent);
             }
 
-            // Console.WriteLine($"Published message on topic '{messageEvent.Topic}'");
+            _logger.Debug("Published message on topic '{Topic}'", messageEvent.Topic);
         }
 
         public void Subscribe(string topicName, Client client) {
@@ -37,7 +40,8 @@ namespace MessageBroker.Server.QueueManager {
             foreach (var message in topic.Messages) {
                 client.Post(message);
             }
-            // Console.WriteLine($"Client subscribed to topic '{topic}'");
+
+            _logger.Debug("Client subscribed to topic '{TopicName}'", topicName);
         }
 
         public void Unsubscribe(string topicName, Client client) {
@@ -49,7 +53,7 @@ namespace MessageBroker.Server.QueueManager {
                 userTopics.TryRemove(topicName, out _);
             }
 
-            // Console.WriteLine($"Client unsubscribed from topic '{topic}'");
+            _logger.Debug("Client unsubscribed from topic '{TopicName}'", topicName);
         }
 
         public void UnsubscribeFromAll(Client client) {
@@ -64,7 +68,7 @@ namespace MessageBroker.Server.QueueManager {
             _users.TryRemove(client, out _);
 
             client.Complete();
-            // Console.WriteLine("Client unsubscribed from all topics");
+            _logger.Debug("Client unsubscribed from all topics");
         }
     }
 }

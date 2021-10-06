@@ -11,32 +11,38 @@ using MessageBroker.Server.MessageShipper.Socket;
 using MessageBroker.Server.Models;
 using MessageBroker.Server.QueueManager;
 using MessageBroker.Server.QueueManager.Abstractions;
+using Serilog;
+using Serilog.Events;
 
 namespace MessageBroker.Server.ConnectionManager.Socket {
     public class SocketConnectionManager : IConnectionManager {
-        private readonly TcpListener                   _socket;
+        private readonly string                        _host;
+        private readonly ILogger                       _logger;
+        private readonly IMessageShipper<StreamWriter> _messageShipper;
         private readonly int                           _port;
         private readonly IQueueManager                 _queueManager;
-        private readonly IMessageShipper<StreamWriter> _messageShipper;
+        private readonly TcpListener                   _socket;
 
-        public SocketConnectionManager(int port) {
+        public SocketConnectionManager(string host, int port, LogEventLevel logEventLevel = LogEventLevel.Information) {
+            _host           = host;
             _port           = port;
-            _socket         = new TcpListener(IPAddress.Any, port);
-            _queueManager   = new MemoryQueueManager();
+            _socket         = new TcpListener(IPAddress.Parse(host), port);
+            _queueManager   = new MemoryQueueManager(logEventLevel);
             _messageShipper = new TcpMessageShipper();
+            _logger         = new LoggerConfiguration().MinimumLevel.Is(logEventLevel).WriteTo.Console().CreateLogger();
         }
 
         public void Start() {
             _socket.Start();
             _socket.BeginAcceptTcpClient(HandleConnection, _socket);
-            Console.WriteLine($"Socket listening on port {_port}");
+            _logger.Information("Socket listening on {Host}:{Port}", _host, _port);
         }
 
         private void HandleConnection(IAsyncResult result) {
             _socket.BeginAcceptTcpClient(HandleConnection, _socket);
 
             using var client = _socket.EndAcceptTcpClient(result);
-            Console.WriteLine("Client connected");
+            _logger.Debug("Client connected");
             using var stream = client.GetStream();
             using var reader = new StreamReader(stream);
             using var writer = new StreamWriter(stream);
@@ -92,7 +98,7 @@ namespace MessageBroker.Server.ConnectionManager.Socket {
                 }
             } catch (Exception) {
                 _queueManager.UnsubscribeFromAll(actionBlock);
-                Console.WriteLine("Client disconnected");
+                _logger.Debug("Client disconnected");
             } finally {
                 tokenSource.Cancel();
                 tokenSource.Dispose();

@@ -10,7 +10,6 @@ namespace MessageBroker.Server.MessageShipper.Grpc {
         public async Task Deliver(IServerStreamWriter<Response> client, MessageEvent messageEvent) {
             try {
                 await client.WriteAsync(new Response { Topic = messageEvent.Topic, Message = messageEvent.Message });
-                // Console.WriteLine($"Message sent to topic '{messageEvent.Topic}'");
             } catch (Exception) {
                 // ignored
             }

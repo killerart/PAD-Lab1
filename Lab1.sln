@@ -2,15 +2,21 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.Server", "MessageBroker.Server\MessageBroker.Server.csproj", "{DDBE5DB5-7A28-4B42-85D6-851EC306DA32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.TestServer", "MessageBroker.TestServer\MessageBroker.TestServer.csproj", "{1C2EE4FF-BB29-4F44-9F2A-968A485D89C4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.Client", "MessageBroker.Client\MessageBroker.Client.csproj", "{00F73252-AF4C-4527-A208-EE2AE05F462A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.TestClient", "MessageBroker.TestClient\MessageBroker.TestClient.csproj", "{7DEF5179-FF46-4D28-9FF8-DDC00BD06CFC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.Grpc", "MessageBroker.Grpc\MessageBroker.Grpc.csproj", "{7F66D135-47D6-445D-A529-0F66A18A5BFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.PerformanceTest", "MessageBroker.PerformanceTest\MessageBroker.PerformanceTest.csproj", "{2C3011AE-41F0-44B0-B79D-A1EDDAD44671}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{75E721D7-BC5B-45AA-8B2C-69653A6D3E6C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.TestPublisher", "Tests\MessageBroker.TestPublisher\MessageBroker.TestPublisher.csproj", "{6DC9E518-26AD-4070-ADAC-156BC8401BDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.PerformanceTest", "Tests\MessageBroker.PerformanceTest\MessageBroker.PerformanceTest.csproj", "{EB31A84B-D1A5-46F0-9C43-2E109A450B7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.Tests.Common", "Tests\MessageBroker.Tests.Common\MessageBroker.Tests.Common.csproj", "{E9198BCC-433A-4A3A-B303-98018ECE3502}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.TestServer", "Tests\MessageBroker.TestServer\MessageBroker.TestServer.csproj", "{77C85083-E4B4-440B-8C45-7745B5F04221}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker.TestSubscriber", "Tests\MessageBroker.TestSubscriber\MessageBroker.TestSubscriber.csproj", "{872703EB-63FF-4994-9A66-12B9BBF7CF37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,25 +28,40 @@ Global
 		{DDBE5DB5-7A28-4B42-85D6-851EC306DA32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDBE5DB5-7A28-4B42-85D6-851EC306DA32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDBE5DB5-7A28-4B42-85D6-851EC306DA32}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1C2EE4FF-BB29-4F44-9F2A-968A485D89C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1C2EE4FF-BB29-4F44-9F2A-968A485D89C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1C2EE4FF-BB29-4F44-9F2A-968A485D89C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1C2EE4FF-BB29-4F44-9F2A-968A485D89C4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{00F73252-AF4C-4527-A208-EE2AE05F462A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{00F73252-AF4C-4527-A208-EE2AE05F462A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00F73252-AF4C-4527-A208-EE2AE05F462A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00F73252-AF4C-4527-A208-EE2AE05F462A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7DEF5179-FF46-4D28-9FF8-DDC00BD06CFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7DEF5179-FF46-4D28-9FF8-DDC00BD06CFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7DEF5179-FF46-4D28-9FF8-DDC00BD06CFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7DEF5179-FF46-4D28-9FF8-DDC00BD06CFC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7F66D135-47D6-445D-A529-0F66A18A5BFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7F66D135-47D6-445D-A529-0F66A18A5BFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F66D135-47D6-445D-A529-0F66A18A5BFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F66D135-47D6-445D-A529-0F66A18A5BFD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2C3011AE-41F0-44B0-B79D-A1EDDAD44671}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2C3011AE-41F0-44B0-B79D-A1EDDAD44671}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2C3011AE-41F0-44B0-B79D-A1EDDAD44671}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2C3011AE-41F0-44B0-B79D-A1EDDAD44671}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DC9E518-26AD-4070-ADAC-156BC8401BDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DC9E518-26AD-4070-ADAC-156BC8401BDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DC9E518-26AD-4070-ADAC-156BC8401BDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DC9E518-26AD-4070-ADAC-156BC8401BDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB31A84B-D1A5-46F0-9C43-2E109A450B7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB31A84B-D1A5-46F0-9C43-2E109A450B7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB31A84B-D1A5-46F0-9C43-2E109A450B7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB31A84B-D1A5-46F0-9C43-2E109A450B7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9198BCC-433A-4A3A-B303-98018ECE3502}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9198BCC-433A-4A3A-B303-98018ECE3502}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9198BCC-433A-4A3A-B303-98018ECE3502}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9198BCC-433A-4A3A-B303-98018ECE3502}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77C85083-E4B4-440B-8C45-7745B5F04221}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77C85083-E4B4-440B-8C45-7745B5F04221}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77C85083-E4B4-440B-8C45-7745B5F04221}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77C85083-E4B4-440B-8C45-7745B5F04221}.Release|Any CPU.Build.0 = Release|Any CPU
+		{872703EB-63FF-4994-9A66-12B9BBF7CF37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{872703EB-63FF-4994-9A66-12B9BBF7CF37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{872703EB-63FF-4994-9A66-12B9BBF7CF37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{872703EB-63FF-4994-9A66-12B9BBF7CF37}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6DC9E518-26AD-4070-ADAC-156BC8401BDA} = {75E721D7-BC5B-45AA-8B2C-69653A6D3E6C}
+		{EB31A84B-D1A5-46F0-9C43-2E109A450B7A} = {75E721D7-BC5B-45AA-8B2C-69653A6D3E6C}
+		{E9198BCC-433A-4A3A-B303-98018ECE3502} = {75E721D7-BC5B-45AA-8B2C-69653A6D3E6C}
+		{77C85083-E4B4-440B-8C45-7745B5F04221} = {75E721D7-BC5B-45AA-8B2C-69653A6D3E6C}
+		{872703EB-63FF-4994-9A66-12B9BBF7CF37} = {75E721D7-BC5B-45AA-8B2C-69653A6D3E6C}
 	EndGlobalSection
 EndGlobal

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using MessageBroker.Client.Grpc;
 using MessageBroker.Client.Socket;
-using MessageBroker.TestClient;
+using MessageBroker.Tests.Common;
 using NBomber.Contracts;
 using NBomber.CSharp;
 

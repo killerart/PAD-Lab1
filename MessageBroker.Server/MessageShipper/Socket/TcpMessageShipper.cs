@@ -14,8 +14,6 @@ namespace MessageBroker.Server.MessageShipper.Socket {
                 await client.WriteLineAsync(messageEvent.Message);
                 await client.WriteLineAsync();
                 await client.FlushAsync();
-
-                // Console.WriteLine($"Message sent to topic '{messageEvent.Topic}'");
             } catch (Exception) {
                 // ignored
             }
