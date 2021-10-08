@@ -28,7 +28,7 @@ namespace MessageBroker.Server.ConnectionManager.Grpc {
                                            ServerCallContext             context) {
             _logger.Debug("Client connected");
             using var tokenSource = new CancellationTokenSource();
-            var actionBlock = new ActionBlock<MessageEvent>(messageEvent => _messageShipper.Deliver(responseStream, messageEvent),
+            var actionBlock = new ActionBlock<MessageEvent>(async messageEvent => await _messageShipper.Deliver(responseStream, messageEvent),
                                                             new ExecutionDataflowBlockOptions {
                                                                 CancellationToken = tokenSource.Token
                                                             });
